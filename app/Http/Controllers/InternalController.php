@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AccountResources;
+use App\Http\Resources\CategoryResources;
 use App\Models\Category;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -13,12 +15,12 @@ class InternalController extends ApiController
 {
     public function account()
     {
-        $accounts = Account::all();
+        $accounts = AccountResources::collection(Account::all());
         return $this->success('Thành công', $accounts);
     }
     public function category()
     {
-        $categories = Category::all();
+        $categories = CategoryResources::collection(Category::all());
         return $this->success('Thành công', $categories);
     }
     public function updateRole($id, Request $request)

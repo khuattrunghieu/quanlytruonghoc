@@ -5,18 +5,16 @@ namespace Modules\Classes\Http\Controllers;
 use App\Http\Controllers\ApiController;
 use Illuminate\Http\Request;
 use Modules\Classes\Entities\Classes;
-use App\User;
 use Modules\Classes\Http\Requests\ClassStoreRequest;
 use Modules\Classes\Http\Requests\ClassUpdateRequest;
+use Modules\Classes\Transformers\ClassSchoolResources;
 
 class ClassesController extends ApiController
 {
     public $class;
-    public $user;
-    public function __construct(Classes $class, User $user)
+    public function __construct(Classes $class)
     {
         $this->class = $class;
-        $this->user = $user;
     }
 
     /**
@@ -26,13 +24,13 @@ class ClassesController extends ApiController
      */
     public function index(Request $request)
     {
-        $classes = $this->class->orderBy('id', 'desc')->get();
+        $classes = ClassSchoolResources::collection($this->class->orderBy('id', 'desc')->get());
         return $this->success('Thành công', $classes);
     }
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request  $request1
      * @return \Illuminate\Http\Response
      */
     public function store(ClassStoreRequest $request)
@@ -65,7 +63,8 @@ class ClassesController extends ApiController
     {
         $class = $this->class->find($id);
         if ($class) {
-            return $this->success('Thành công', $class);
+            $classResources = new ClassSchoolResources($class);
+            return $this->success('Thành công', $classResources);
         }
         return $this->show_error('Không tồn tại');        
     }
@@ -110,7 +109,7 @@ class ClassesController extends ApiController
         if ($request->has('search') && $search = $request->search) {
             $classes = $classes->where('name', 'like', '%' . $search . '%');
         }
-        $classes = $classes->get();
+        $classes = ClassSchoolResources::collection($classes->get());
         return $this->success('Thành công', $classes);
     }
 }

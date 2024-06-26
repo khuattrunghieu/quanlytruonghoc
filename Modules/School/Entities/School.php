@@ -10,8 +10,4 @@ class School extends Model
     protected $fillable = [
         'name', 'address'
     ];
-    public function schoolClass()
-    {
-        return $this->hasMany( Classes::class);
-    }
 }

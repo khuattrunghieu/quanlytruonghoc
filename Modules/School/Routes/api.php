@@ -21,7 +21,7 @@ Route::middleware(['checkLogin', 'checkRole:4,view'])->group(function () {
     Route::get('/school', 'SchoolController@index')->name('school.index');
     Route::post('/school/search', 'SchoolController@search')->name('school.search');
     Route::post('/school/create', 'SchoolController@store')->middleware('checkRole:4,add')->name('school.store');
-    Route::get('/school/edit/{$id}', 'SchoolController@edit')->middleware('checkRole:4,edit')->name('school.edit');
-    Route::put('/school/update/{$id}', 'SchoolController@update')->middleware('checkRole:4,edit')->name('school.update');
-    Route::delete('/school/destroy/{$id}', 'SchoolController@destroy')->middleware('checkRole:4,delete')->name('school.destroy');
+    Route::get('/school/edit/{id}', 'SchoolController@edit')->middleware('checkRole:4,edit')->name('school.edit');
+    Route::put('/school/update/{id}', 'SchoolController@update')->middleware('checkRole:4,edit')->name('school.update');
+    Route::delete('/school/destroy/{id}', 'SchoolController@destroy')->middleware('checkRole:4,delete')->name('school.destroy');
 });

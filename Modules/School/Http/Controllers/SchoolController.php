@@ -7,17 +7,15 @@ use Illuminate\Http\Request;
 use Modules\School\Entities\School;
 use Modules\School\Http\Requests\SchoolUpdateRequest;
 use Modules\School\Http\Requests\SchoolStoreRequest;
-use App\User;
+use Modules\School\Transformers\SchoolResources;
 
 class SchoolController extends ApiController
 {
     public $school;
 
-    public $user;
-    public function __construct(School $school, User $user)
+    public function __construct(School $school)
     {
         $this->school = $school;
-        $this->user = $user;
     }
 
     /**
@@ -27,7 +25,7 @@ class SchoolController extends ApiController
      */
     public function index(Request $request)
     {
-        $schools = $this->school->orderBy('id', 'desc')->get();
+        $schools = SchoolResources::collection($this->school->orderBy('id', 'desc')->get());
         return $this->success('Thành công', $schools);
     }
 
@@ -77,7 +75,8 @@ class SchoolController extends ApiController
     {
         $school = $this->school->find($id);
         if ($school) {
-            return $this->success('Thành công', $school);
+            $schoolResources = new SchoolResources($school);
+            return $this->success('Thành công', $schoolResources);
         }
         return $this->show_error('Không tồn tại');        
     }
@@ -124,7 +123,7 @@ class SchoolController extends ApiController
             $schools = $schools->where('name', 'like', '%' . $search . '%')
                 ->orWhere('address', 'like', '%' . $search . '%');
         }
-        $schools = $schools->get();
+        $schools = SchoolResources::collection($schools->get());
         return $this->success('Thành công', $schools);
     }
 }

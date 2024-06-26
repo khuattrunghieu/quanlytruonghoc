@@ -3,6 +3,7 @@
 namespace Modules\Student\Http\Controllers;
 
 use App\Http\Controllers\ApiController;
+use App\Http\Resources\UserResources;
 use App\Models\Category;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ class StudentController extends ApiController
      */
     public function index(Request $request)
     {
-        $students = $this->user->where('account_id', 2)->orderBy('id', 'desc')->get();
+        $students = UserResources::collection($this->user->where('account_id', 2)->orderBy('id', 'desc')->get());
         return $this->success('Thành công', $students);
     }
 
@@ -88,7 +89,8 @@ class StudentController extends ApiController
     {
         $student = $this->user->find($id);
         if ($student) {
-            return $this->success('Thành công', $student);
+            $studentResources = new UserResources($student);
+            return $this->success('Thành công', $studentResources);
         }
         return $this->show_error('Không tồn tại');        
     }
@@ -143,7 +145,7 @@ class StudentController extends ApiController
                 ->orWhere('address', 'like', '%' . $search . '%')
                 ->orWhere('birthday', 'like', '%' . $search . '%');
         }
-        $students = $students->get();
-        return $this->success('Thành công', $students);
+        $studentResources = UserResources::collection($students->get());
+        return $this->success('Thành công', $studentResources);
     }
 }

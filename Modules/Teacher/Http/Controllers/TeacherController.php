@@ -3,6 +3,7 @@
 namespace Modules\Teacher\Http\Controllers;
 
 use App\Http\Controllers\ApiController;
+use App\Http\Resources\UserResources;
 use App\Models\Category;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ class TeacherController extends ApiController
      */
     public function index()
     {
-        $teachers = $this->user->where('account_id', 1)->orderBy('id', 'desc')->get();
+        $teachers = UserResources::collection($this->user->where('account_id', 1)->orderBy('id', 'desc')->get());
         return $this->success('Thành công', $teachers);
     }
 
@@ -88,7 +89,8 @@ class TeacherController extends ApiController
     {
         $teacher = $this->user->find($id);
         if ($teacher) {
-            return $this->success('Thành công', $teacher);
+            $teacherResources = new UserResources($teacher);
+            return $this->success('Thành công', $teacherResources);
         }
         return $this->show_error('Không tồn tại');
     }
@@ -143,7 +145,7 @@ class TeacherController extends ApiController
                 ->orWhere('address', 'like', '%' . $search . '%')
                 ->orWhere('birthday', 'like', '%' . $search . '%');
         }
-        $teachers = $teachers->get();
-        return $this->success('Thành công', $teachers);
+        $teachersResources = UserResources::collection($teachers->get());
+        return $this->success('Thành công', $teachersResources);
     }
 }
