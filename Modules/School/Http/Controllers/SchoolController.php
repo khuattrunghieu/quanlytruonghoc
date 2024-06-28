@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Modules\School\Entities\School;
 use Modules\School\Http\Requests\SchoolUpdateRequest;
 use Modules\School\Http\Requests\SchoolStoreRequest;
+use Modules\School\Transformers\SchoolResourceCollection;
 use Modules\School\Transformers\SchoolResources;
 
 class SchoolController extends ApiController
@@ -25,8 +26,13 @@ class SchoolController extends ApiController
      */
     public function index(Request $request)
     {
-        $schools = SchoolResources::collection($this->school->orderBy('id', 'desc')->get());
-        return $this->success('Thành công', $schools);
+        $schools = $this->school->orderBy('id', 'desc');
+        if ($request->has('search') && $search = $request->search) {
+            $schools = $schools->where('name', 'like', '%' . $search . '%')
+                ->orWhere('address', 'like', '%' . $search . '%');
+        }
+        $SchoolResource = new SchoolResourceCollection($schools->paginate(10));
+        return $this->success('Thành công', $SchoolResource);
     }
 
     /**
@@ -62,7 +68,12 @@ class SchoolController extends ApiController
      */
     public function show($id)
     {
-        //
+        $school = $this->school->find($id);
+        if ($school) {
+            $schoolResources = new SchoolResources($school);
+            return $this->success('Thành công', $schoolResources);
+        }
+        return $this->show_error('Không tồn tại');        
     }
 
     /**
@@ -71,14 +82,9 @@ class SchoolController extends ApiController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit()
     {
-        $school = $this->school->find($id);
-        if ($school) {
-            $schoolResources = new SchoolResources($school);
-            return $this->success('Thành công', $schoolResources);
-        }
-        return $this->show_error('Không tồn tại');        
+        
     }
 
     /**
@@ -115,16 +121,6 @@ class SchoolController extends ApiController
             return $this->success('Thành công', null);
         }
         return $this->show_error('Không tồn tại');        
-    }
-    public function search(Request $request)
-    {
-        $schools = $this->school->orderBy('id', 'desc');
-        if ($request->has('search') && $search = $request->search) {
-            $schools = $schools->where('name', 'like', '%' . $search . '%')
-                ->orWhere('address', 'like', '%' . $search . '%');
-        }
-        $schools = SchoolResources::collection($schools->get());
-        return $this->success('Thành công', $schools);
     }
 }
 

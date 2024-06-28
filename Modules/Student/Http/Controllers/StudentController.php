@@ -3,6 +3,7 @@
 namespace Modules\Student\Http\Controllers;
 
 use App\Http\Controllers\ApiController;
+use App\Http\Resources\UserResourceCollection;
 use App\Http\Resources\UserResources;
 use App\Models\Category;
 use App\Models\Role;
@@ -27,8 +28,16 @@ class StudentController extends ApiController
      */
     public function index(Request $request)
     {
-        $students = UserResources::collection($this->user->where('account_id', 2)->orderBy('id', 'desc')->get());
-        return $this->success('Thành công', $students);
+        $students = $this->user->where('account_id', 2)->orderBy('id', 'desc');
+        if ($request->has('search') && $search = $request->search) {
+            $students = $students->where('name', 'like', '%' . $search . '%')
+                ->orWhere('email', 'like', '%' . $search . '%')
+                ->orWhere('phone', 'like', '%' . $search . '%')
+                ->orWhere('address', 'like', '%' . $search . '%')
+                ->orWhere('birthday', 'like', '%' . $search . '%');
+        }
+        $studentResources = new UserResourceCollection($students->paginate(10));
+        return $this->success('Thành công', $studentResources);
     }
 
     /**
@@ -76,7 +85,12 @@ class StudentController extends ApiController
      */
     public function show($id)
     {
-        //
+        $student = $this->user->find($id);
+        if ($student) {
+            $studentResources = new UserResources($student);
+            return $this->success('Thành công', $studentResources);
+        }
+        return $this->show_error('Không tồn tại');    
     }
 
     /**
@@ -85,14 +99,9 @@ class StudentController extends ApiController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit()
     {
-        $student = $this->user->find($id);
-        if ($student) {
-            $studentResources = new UserResources($student);
-            return $this->success('Thành công', $studentResources);
-        }
-        return $this->show_error('Không tồn tại');        
+            
     }
 
     /**
@@ -134,18 +143,5 @@ class StudentController extends ApiController
             return $this->success('Thành công', null);
         }
         return $this->show_error('Không tồn tại');        
-    }
-    public function search(Request $request)
-    {
-        $students = $this->user->where('account_id', 2)->orderBy('id', 'desc');
-        if ($request->has('search') && $search = $request->search) {
-            $students = $students->where('name', 'like', '%' . $search . '%')
-                ->orWhere('email', 'like', '%' . $search . '%')
-                ->orWhere('phone', 'like', '%' . $search . '%')
-                ->orWhere('address', 'like', '%' . $search . '%')
-                ->orWhere('birthday', 'like', '%' . $search . '%');
-        }
-        $studentResources = UserResources::collection($students->get());
-        return $this->success('Thành công', $studentResources);
     }
 }
