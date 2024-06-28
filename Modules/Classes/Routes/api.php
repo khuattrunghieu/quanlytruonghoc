@@ -16,10 +16,17 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/classes', function (Request $request) {
     return $request->user();
 });
-Route::middleware(['checkLogin', 'checkRole:3,view'])->group(function () {
-    Route::get('/class', 'ClassesController@index')->name('class.index');
-    Route::post('/class/create', 'ClassesController@store')->middleware('checkRole:3,add')->name('class.store');
-    Route::get('/class/show/{id}', 'ClassesController@show')->middleware('checkRole:3,edit')->name('class.show');
-    Route::put('/class/update/{id}', 'ClassesController@update')->middleware('checkRole:3,edit')->name('class.update');
-    Route::delete('/class/destroy/{id}', 'ClassesController@destroy')->middleware('checkRole:3,delete')->name('class.destroy');
+
+Route::group([
+    'prefix' => '/class',
+    'middleware' => [
+        'checkLogin',
+        'checkRole:3,view',
+    ]
+], function () {
+    Route::get('/', 'ClassesController@index')->name('class.index');
+    Route::post('/create', 'ClassesController@store')->middleware('checkRole:3,add')->name('class.store');
+    Route::get('/show/{id}', 'ClassesController@show')->middleware('checkRole:3,edit')->name('class.show');
+    Route::put('/update/{id}', 'ClassesController@update')->middleware('checkRole:3,edit')->name('class.update');
+    Route::delete('/destroy/{id}', 'ClassesController@destroy')->middleware('checkRole:3,delete')->name('class.destroy');
 });

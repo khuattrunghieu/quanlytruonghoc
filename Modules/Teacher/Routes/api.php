@@ -17,10 +17,16 @@ Route::middleware('auth:api')->get('/teacher', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware(['checkLogin', 'checkRole:2,view'])->group(function () {
-    Route::get('/teacher', 'TeacherController@index')->name('teacher.index');
-    Route::post('/teacher/create', 'TeacherController@store')->middleware('checkRole:2,add')->name('teacher.store');
-    Route::get('/teacher/show/{id}', 'TeacherController@show')->middleware('checkRole:2,edit')->name('teacher.show');
-    Route::put('/teacher/update/{id}', 'TeacherController@update')->middleware('checkRole:2,edit')->name('teacher.update');
-    Route::delete('/teacher/destroy/{id}', 'TeacherController@destroy')->middleware('checkRole:2,delete')->name('teacher.destroy');
+Route::group([
+    'prefix' => '/teacher',
+    'middleware' => [
+        'checkLogin',
+        'checkRole:2,view',
+    ]
+], function () {
+    Route::get('/', 'TeacherController@index')->name('teacher.index');
+    Route::post('/create', 'TeacherController@store')->middleware('checkRole:2,add')->name('teacher.store');
+    Route::get('/show/{id}', 'TeacherController@show')->middleware('checkRole:2,edit')->name('teacher.show');
+    Route::put('/update/{id}', 'TeacherController@update')->middleware('checkRole:2,edit')->name('teacher.update');
+    Route::delete('/destroy/{id}', 'TeacherController@destroy')->middleware('checkRole:2,delete')->name('teacher.destroy');
 });

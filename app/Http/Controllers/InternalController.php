@@ -8,7 +8,6 @@ use App\Models\Category;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use App\Models\Account;
-use Modules\School\Entities\School;
 
 
 class InternalController extends ApiController

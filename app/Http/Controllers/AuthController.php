@@ -11,9 +11,7 @@ use Illuminate\Support\Str;
 use App\Http\Requests\RegisterRequest;
 use App\User;
 use Illuminate\Support\Facades\Hash;
-use App\Models\RoleUser;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class AuthController extends ApiController
 {
