@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Modules\Classes\Entities\Classes;
 use Modules\Classes\Http\Requests\ClassStoreRequest;
 use Modules\Classes\Http\Requests\ClassUpdateRequest;
+use Modules\Classes\Transformers\ClassSchoolResourceCollection;
 use Modules\Classes\Transformers\ClassSchoolResources;
 
 class ClassesController extends ApiController
@@ -24,13 +25,18 @@ class ClassesController extends ApiController
      */
     public function index(Request $request)
     {
-        $classes = ClassSchoolResources::collection($this->class->orderBy('id', 'desc')->get());
-        return $this->success('Thành công', $classes);
+        $classes = $this->class->orderBy('id', 'desc');
+        if ($request->has('search') && $search = $request->search) {
+            $classes = $classes->where('name', 'like', '%' . $search . '%');
+        }
+        $classesResources = new ClassSchoolResourceCollection($classes->paginate(10));
+
+        return $this->success('Thành công', $classesResources);
     }
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request1
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(ClassStoreRequest $request)
@@ -50,23 +56,22 @@ class ClassesController extends ApiController
      */
     public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
         $class = $this->class->find($id);
         if ($class) {
             $classResources = new ClassSchoolResources($class);
             return $this->success('Thành công', $classResources);
         }
         return $this->show_error('Không tồn tại');        
+        
+    }
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit()
+    {
     }
 
     /**
@@ -81,7 +86,9 @@ class ClassesController extends ApiController
         $class = $this->class->find($id);
         if ($class) {
             $class->update([
-                'name' => $request->name
+                'name' => $request->name,
+                'school_id' => $request->school,
+
             ]);
             return $this->success('Thành công', $class);
         }
@@ -102,14 +109,5 @@ class ClassesController extends ApiController
             return $this->success('Thành công', null);
         }
         return $this->show_error('Không tồn tại');        
-    }
-    public function search(Request $request)
-    {
-        $classes = $this->class->orderBy('id', 'desc');
-        if ($request->has('search') && $search = $request->search) {
-            $classes = $classes->where('name', 'like', '%' . $search . '%');
-        }
-        $classes = ClassSchoolResources::collection($classes->get());
-        return $this->success('Thành công', $classes);
     }
 }
